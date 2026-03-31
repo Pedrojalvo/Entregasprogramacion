@@ -172,52 +172,145 @@ public class EjerciciosLambdas {
     }
     
 
-    public static void ejercicio17() {
-        System.out.println("\n=== EJERCICIO 17 ===");
+        public static class Persona {
+        private String nombre;
+        private LocalDate fechaDeNacimiento;
         
-        // Crear lista de personas
-        List<Persona> personas = Arrays.asList(
-            new Persona("Ana", LocalDate.of(1995, 5, 15)),
-            new Persona("Juan", LocalDate.of(1990, 8, 22)),
-            new Persona("Maria", LocalDate.of(2000, 3, 10)),
-            new Persona("Carlos", LocalDate.of(1985, 12, 1)),
-            new Persona("Luisa", LocalDate.of(1998, 7, 18))
-        );
+        public Persona(String nombre, LocalDate fechaDeNacimiento) {
+            this.nombre = nombre;
+            this.fechaDeNacimiento = fechaDeNacimiento;
+        }
+        
+        public String getNombre() {
+            return nombre;
+        }
+        
+        public void setNombre(String nombre) {
+            this.nombre = nombre;
+        }
+        
+        public LocalDate getFechaDeNacimiento() {
+            return fechaDeNacimiento;
+        }
+        
+        public void setFechaDeNacimiento(LocalDate fechaDeNacimiento) {
+            this.fechaDeNacimiento = fechaDeNacimiento;
+        }
+        
+        public long calcularEdad() {
+            return Period.between(fechaDeNacimiento, LocalDate.now()).getYears();
+        }
+        
+        @Override
+        public String toString() {
+            return String.format("Persona{nombre='%s', fechaNacimiento=%s, edad=%d}", 
+                                nombre, fechaDeNacimiento, calcularEdad());
+        }
+    }
+
+    public static class Personas {
+        private List<Persona> listaPersonas;
+        
+        public Personas() {
+            this.listaPersonas = new ArrayList<>();
+        }
+
+        public void annadirPersona(Persona persona) {
+            listaPersonas.add(persona);
+        }
+
+        public Persona elMasJoven() {
+            return listaPersonas.stream()
+                    .max(Comparator.comparingLong(Persona::calcularEdad))
+                    .orElse(null);
+        }
+
+        public long calcularSumaEdades() {
+            return listaPersonas.stream()
+                    .mapToLong(Persona::calcularEdad)
+                    .sum();
+        }
+
+        public long calcularEdadMinima() {
+            return listaPersonas.stream()
+                    .mapToLong(Persona::calcularEdad)
+                    .min()
+                    .orElse(0);
+        }
+
+        public double calcularMediaDeEdad() {
+            return listaPersonas.stream()
+                    .mapToLong(Persona::calcularEdad)
+                    .average()
+                    .orElse(0.0);
+        }
+        
+
+        public List<Persona> getListaPersonas() {
+            return listaPersonas;
+        }
+        
+
+        public void mostrarPersonas() {
+            listaPersonas.forEach(System.out::println);
+        }
+    }
+
+    public static void ejercicio17() {
+        
+        // Crear la colección Personas
+        Personas personas = new Personas();
+        
+        // Añadir personas usando el método annadirPersona()
+        personas.annadirPersona(new Persona("Ana", LocalDate.of(1995, 5, 15)));
+        personas.annadirPersona(new Persona("Juan", LocalDate.of(1990, 8, 22)));
+        personas.annadirPersona(new Persona("Maria", LocalDate.of(2000, 3, 10)));
+        personas.annadirPersona(new Persona("Carlos", LocalDate.of(1985, 12, 1)));
+        personas.annadirPersona(new Persona("Luisa", LocalDate.of(1998, 7, 18)));
         
         // Mostrar todas las personas
-        System.out.println("Lista de personas:");
-        personas.forEach(System.out::println);
+        System.out.println("\nLista de personas:");
+        personas.mostrarPersonas();
+        
+        // a) Obtener la persona más joven
+        Persona masJoven = personas.elMasJoven();
+        System.out.println("\na) Persona más joven: " + masJoven);
+        
+        // b) Calcular la suma de las edades
+        long sumaEdades = personas.calcularSumaEdades();
+        System.out.println("b) Suma de las edades: " + sumaEdades + " años");
+        
+        // c) Calcular la edad mínima
+        long edadMinima = personas.calcularEdadMinima();
+        System.out.println("c) Edad mínima: " + edadMinima + " años");
+        
+        // d) Calcular la media de edad
+        double mediaEdad = personas.calcularMediaDeEdad();
+        System.out.printf("d) Media de edad: %.2f años%n", mediaEdad);
+        
+        // Demostración adicional: operaciones con streams
+        System.out.println("\n--- Demostración adicional ---");
+        
+        // Ordenar por nombre
+        System.out.println("\nPersonas ordenadas por nombre:");
+        personas.getListaPersonas().stream()
+                .sorted(Comparator.comparing(Persona::getNombre))
+                .forEach(System.out::println);
         
         // Filtrar personas mayores de 25 años
         System.out.println("\nPersonas mayores de 25 años:");
-        personas.stream()
+        personas.getListaPersonas().stream()
                 .filter(p -> p.calcularEdad() > 25)
                 .forEach(System.out::println);
         
-        // Ordenar por edad
-        System.out.println("\nPersonas ordenadas por edad:");
-        personas.stream()
-                .sorted(Comparator.comparingLong(Persona::calcularEdad))
-                .forEach(System.out::println);
-        
-        // Obtener nombres de personas menores de 30 años
-        System.out.println("\nNombres de personas menores de 30 años:");
-        personas.stream()
-                .filter(p -> p.calcularEdad() < 30)
+        // Obtener solo los nombres
+        System.out.println("\nNombres de todas las personas:");
+        personas.getListaPersonas().stream()
                 .map(Persona::getNombre)
                 .forEach(System.out::println);
-        
-        // Calcular edad promedio
-        double edadPromedio = personas.stream()
-                                      .mapToLong(Persona::calcularEdad)
-                                      .average()
-                                      .orElse(0.0);
-        System.out.println("\nEdad promedio: " + edadPromedio);
     }
 
     public static void main(String[] args) {
-        // Ejemplo de uso del ejercicio 13 y 16
-        System.out.println("=== EJERCICIO 13 y 16 - Ejemplo de integral ===");
         
         // Definir funciones usando lambdas
         Function<Double, Double> cuadratica = x -> x * x;
